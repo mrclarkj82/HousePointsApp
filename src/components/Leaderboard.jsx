@@ -1,5 +1,5 @@
-import { Trophy } from "lucide-react";
 import { HOUSES, HOUSE_BY_ID, classNames, sortHousesByPoints } from "../utils/constants";
+import HouseCrest from "./HouseCrest";
 
 export default function Leaderboard({ houses = [], compact = false }) {
   const merged = HOUSES.map((base) => ({
@@ -18,7 +18,7 @@ export default function Leaderboard({ houses = [], compact = false }) {
           <article
             key={house.id}
             className={classNames(
-              "rounded-lg border bg-white p-4 shadow-soft",
+              "adventure-surface overflow-hidden rounded-lg border p-4 shadow-soft",
               meta.border,
               compact ? "" : "min-h-44"
             )}
@@ -28,9 +28,7 @@ export default function Leaderboard({ houses = [], compact = false }) {
                 <p className="text-sm font-bold uppercase tracking-normal text-slate-500">Rank {index + 1}</p>
                 <h3 className="mt-1 text-2xl font-black text-slate-950">{meta.name}</h3>
               </div>
-              <div className={classNames("grid h-12 w-12 place-items-center rounded-lg text-white", meta.bg)}>
-                <Trophy size={24} aria-hidden="true" />
-              </div>
+              <HouseCrest houseId={house.id} />
             </div>
             <div className="mt-5 flex items-end justify-between gap-4">
               <p className="text-4xl font-black text-slate-950">{Number(house.totalPoints || 0).toLocaleString()}</p>

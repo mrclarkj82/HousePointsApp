@@ -1,6 +1,7 @@
-import { Award, CalendarDays, GraduationCap, Star } from "lucide-react";
+import { Award, CalendarDays, GraduationCap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import EmptyState from "../components/EmptyState";
+import HouseCrest from "../components/HouseCrest";
 import HouseBadge from "../components/HouseBadge";
 import Leaderboard from "../components/Leaderboard";
 import { listenHouses, listenRecentStudentAwards, listenStudent } from "../services/firestore";
@@ -60,7 +61,7 @@ export default function StudentDashboard({ profile }) {
                 <HouseBadge houseId={student?.houseId} />
               </div>
             </div>
-            <div className="rounded-lg bg-slate-950 p-4 text-white sm:min-w-48">
+            <div className="rounded-lg bg-gradient-to-br from-slate-950 to-red-950 p-4 text-white ring-1 ring-amber-200/30 sm:min-w-48">
               <p className="text-sm font-bold text-slate-300">Personal points</p>
               <p className="mt-1 text-5xl font-black">{Number(student?.totalPoints || 0).toLocaleString()}</p>
             </div>
@@ -73,9 +74,7 @@ export default function StudentDashboard({ profile }) {
               <p className="text-sm font-bold uppercase tracking-normal text-slate-500">House Standing</p>
               <h2 className="mt-1 text-3xl font-black text-slate-950">{getHouseName(student?.houseId)}</h2>
             </div>
-            <div className="grid h-12 w-12 place-items-center rounded-lg bg-doral-red text-white">
-              <Star size={24} aria-hidden="true" />
-            </div>
+            <HouseCrest houseId={student?.houseId} />
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-slate-50 p-4">

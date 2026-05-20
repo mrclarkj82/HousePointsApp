@@ -32,8 +32,17 @@ export function useAuthProfile() {
 
   useEffect(() => {
     let unsubscribeProfile = () => {};
+    let authSettled = false;
+
+    const authTimeout = window.setTimeout(() => {
+      if (!authSettled) {
+        setState({ user: null, profile: null, loading: false, error: "" });
+      }
+    }, 4500);
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      authSettled = true;
+      window.clearTimeout(authTimeout);
       unsubscribeProfile();
 
       if (!firebaseUser) {
@@ -84,6 +93,7 @@ export function useAuthProfile() {
     });
 
     return () => {
+      window.clearTimeout(authTimeout);
       unsubscribeAuth();
       unsubscribeProfile();
     };

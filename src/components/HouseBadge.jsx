@@ -5,8 +5,8 @@ export default function HouseBadge({ houseId, className = "" }) {
   return (
     <span
       className={classNames(
-        "inline-flex items-center rounded-full border px-3 py-1 text-sm font-bold",
-        house ? `${house.softBg} ${house.text} ${house.border}` : "border-slate-200 bg-slate-100 text-slate-700",
+        "inline-flex items-center rounded-full border px-3 py-1 text-sm font-black shadow-sm",
+        house ? `${house.softBg} ${house.text} ${house.border}` : "border-amber-200 bg-amber-50 text-slate-700",
         className
       )}
     >
