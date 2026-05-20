@@ -30,10 +30,14 @@ function docList(snapshot) {
 }
 
 function seededAdminEmails() {
-  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org")
+  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org,joseph.clark@doralacademynv.org")
     .split(",")
     .map(emailKey)
     .filter(Boolean);
+}
+
+export function isBootstrapAdminEmail(email) {
+  return seededAdminEmails().includes(emailKey(email));
 }
 
 export async function ensureUserProfile(firebaseUser) {
@@ -64,7 +68,7 @@ export async function ensureUserProfile(firebaseUser) {
 
   if (existing.exists()) {
     const current = existing.data();
-    const shouldResolveRole = current.role === "pending" && resolvedRole !== "pending";
+    const shouldResolveRole = (current.role === "pending" && resolvedRole !== "pending") || bootstrapAdmin;
     const updates = {
       ...linkFields,
       ...(shouldResolveRole

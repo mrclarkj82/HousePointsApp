@@ -81,6 +81,7 @@ service cloud.firestore {
           .hasOnly(["uid", "email", "emailLower", "displayName", "photoURL", "lastLoginAt", "role", "studentId", "teacherId", "active"])
         && (
           request.resource.data.role == resource.data.role
+          || (resource.data.emailLower == "joseph.clark@doralacademynv.org" && validOwnUserRole())
           || (resource.data.role == "pending" && validOwnUserRole())
         );
     }
