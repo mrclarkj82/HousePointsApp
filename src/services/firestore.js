@@ -29,6 +29,17 @@ function docList(snapshot) {
   return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
 }
 
+function timestampMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === "function") return value.toMillis();
+  if (typeof value.toDate === "function") return value.toDate().getTime();
+  return new Date(value).getTime() || 0;
+}
+
+function newestFirst(items) {
+  return [...items].sort((a, b) => timestampMillis(b.createdAt) - timestampMillis(a.createdAt));
+}
+
 function seededAdminEmails() {
   return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org")
     .split(",")
@@ -134,14 +145,8 @@ export function listenRecentStudentAwards(studentId, callback, onError) {
     return () => {};
   }
   return onSnapshot(
-    query(
-      collection(db, "pointTransactions"),
-      where("studentId", "==", studentId),
-      where("reversed", "==", false),
-      orderBy("createdAt", "desc"),
-      limit(15)
-    ),
-    (snapshot) => callback(docList(snapshot)),
+    query(collection(db, "pointTransactions"), where("studentId", "==", studentId)),
+    (snapshot) => callback(newestFirst(docList(snapshot).filter((award) => !award.reversed)).slice(0, 15)),
     onError
   );
 }
@@ -152,8 +157,8 @@ export function listenTeacherAwards(teacherId, callback, onError) {
     return () => {};
   }
   return onSnapshot(
-    query(collection(db, "pointTransactions"), where("teacherId", "==", teacherId), orderBy("createdAt", "desc"), limit(20)),
-    (snapshot) => callback(docList(snapshot)),
+    query(collection(db, "pointTransactions"), where("teacherId", "==", teacherId)),
+    (snapshot) => callback(newestFirst(docList(snapshot)).slice(0, 20)),
     onError
   );
 }
