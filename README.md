@@ -15,6 +15,9 @@ GitHub Pages deploys from `main` with GitHub Actions:
 
 `https://mrclarkj82.github.io/HousePointsApp/`
 
+If the first workflow run says GitHub Pages has not been enabled, open repository
+Settings > Pages and set the source to GitHub Actions, then rerun the workflow.
+
 Because Firebase Google Sign-In checks allowed domains, add this domain in Firebase Console:
 
 `mrclarkj82.github.io`
