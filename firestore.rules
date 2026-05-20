@@ -1,0 +1,163 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function hasUserDoc() {
+      return signedIn() && exists(userPath());
+    }
+
+    function userData() {
+      return get(userPath()).data;
+    }
+
+    function role() {
+      return signedIn() && request.auth.token.role != null
+        ? request.auth.token.role
+        : (hasUserDoc() ? userData().role : "pending");
+    }
+
+    function isAdmin() {
+      return signedIn() && (role() == "admin" || request.auth.token.admin == true);
+    }
+
+    function isTeacher() {
+      return signedIn() && (isAdmin() || role() == "teacher");
+    }
+
+    function isStudent() {
+      return signedIn() && role() == "student";
+    }
+
+    function importedStudent(emailLower) {
+      return exists(/databases/$(database)/documents/students/$(emailLower));
+    }
+
+    function importedTeacher(emailLower) {
+      return exists(/databases/$(database)/documents/teachers/$(emailLower));
+    }
+
+    function importedTeacherRole(emailLower) {
+      return get(/databases/$(database)/documents/teachers/$(emailLower)).data.role;
+    }
+
+    function validOwnUserCreate() {
+      let requestedRole = request.resource.data.role;
+      let emailLower = request.resource.data.emailLower;
+      return request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && emailLower is string
+        && (
+          requestedRole == "pending"
+          || (requestedRole == "student" && importedStudent(emailLower))
+          || (requestedRole == "teacher" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "teacher")
+          || (requestedRole == "admin" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "admin")
+          || (requestedRole == "admin" && request.auth.token.admin == true)
+        );
+    }
+
+    function isOwnStudent(studentId) {
+      return signedIn()
+        && (
+          (hasUserDoc() && userData().studentId == studentId)
+          || resource.data.email == request.auth.token.email
+        );
+    }
+
+    function isOwnTeacher(teacherId) {
+      return signedIn()
+        && (
+          (hasUserDoc() && userData().teacherId == teacherId)
+          || resource.data.email == request.auth.token.email
+        );
+    }
+
+    function validAwardCreate() {
+      return isTeacher()
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.reversed == false
+        && request.resource.data.awardType in ["individual", "group", "class", "house"]
+        && (
+          request.resource.data.teacherId == request.auth.uid
+          || (hasUserDoc() && request.resource.data.teacherId == userData().teacherId)
+        );
+    }
+
+    match /users/{userId} {
+      allow get: if signedIn() && (userId == request.auth.uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if signedIn() && userId == request.auth.uid && validOwnUserCreate();
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && userId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["uid", "email", "emailLower", "displayName", "photoURL", "lastLoginAt"])
+          && request.resource.data.role == resource.data.role
+        );
+      allow delete: if isAdmin();
+    }
+
+    match /students/{studentId} {
+      allow get: if isAdmin() || isTeacher() || isOwnStudent(studentId);
+      allow list: if isAdmin() || isTeacher();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+          isTeacher()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["totalPoints", "updatedAt"])
+        );
+    }
+
+    match /teachers/{teacherId} {
+      allow get: if isAdmin() || isOwnTeacher(teacherId);
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /houses/{houseId} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+          isTeacher()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["id", "name", "totalPoints", "seasonTotals", "updatedAt"])
+        );
+    }
+
+    match /categories/{categoryId} {
+      allow get, list: if signedIn() && (isTeacher() || isAdmin() || resource.data.active == true);
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /seasons/{seasonId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /classesOrPeriods/{classId} {
+      allow read: if isTeacher();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /pointTransactions/{transactionId} {
+      allow create: if validAwardCreate();
+      allow get, list: if isAdmin()
+        || (isTeacher() && resource.data.teacherId == userData().teacherId)
+        || (isTeacher() && resource.data.teacherId == request.auth.uid)
+        || (isStudent() && resource.data.studentId == userData().studentId);
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+  }
+}

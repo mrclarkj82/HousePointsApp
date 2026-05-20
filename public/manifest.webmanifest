@@ -1,0 +1,18 @@
+{
+  "name": "Doral Red Rock House Points",
+  "short_name": "House Points",
+  "description": "Award and track Doral Red Rock house points.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#b91c1c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
