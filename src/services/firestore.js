@@ -30,7 +30,7 @@ function docList(snapshot) {
 }
 
 function seededAdminEmails() {
-  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org,joseph.clark@doralacademynv.org")
+  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org")
     .split(",")
     .map(emailKey)
     .filter(Boolean);
