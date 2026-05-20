@@ -53,6 +53,36 @@
     @apply text-xl font-bold tracking-normal text-slate-950 sm:text-2xl;
   }
 
+  .app-header {
+    background: rgba(255, 251, 235, 0.98);
+    border-bottom: 1px solid rgba(217, 119, 6, 0.32);
+    color: #0f172a;
+  }
+
+  .app-kicker {
+    color: #991b1b;
+    font-weight: 900;
+  }
+
+  .app-title {
+    color: #0f172a;
+    font-weight: 900;
+  }
+
+  .app-nav-inactive {
+    color: #334155;
+  }
+
+  .app-nav-inactive:active {
+    background: rgba(254, 243, 199, 0.8);
+  }
+
+  .app-signout {
+    border-color: rgba(217, 119, 6, 0.42);
+    background: rgba(255, 255, 255, 0.88);
+    color: #1e293b;
+  }
+
   .adventure-surface {
     background:
       linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 248, 231, 0.9)),
