@@ -30,7 +30,7 @@ function docList(snapshot) {
 }
 
 function seededAdminEmails() {
-  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "")
+  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org")
     .split(",")
     .map(emailKey)
     .filter(Boolean);
@@ -64,15 +64,27 @@ export async function ensureUserProfile(firebaseUser) {
 
   if (existing.exists()) {
     const current = existing.data();
-    await setDoc(userRef, linkFields, { merge: true });
-    return { id: existing.id, ...current, ...linkFields };
+    const shouldResolveRole = current.role === "pending" && resolvedRole !== "pending";
+    const updates = {
+      ...linkFields,
+      ...(shouldResolveRole
+        ? {
+            role: resolvedRole,
+            studentId: studentData ? lowerEmail : "",
+            teacherId: teacherData || bootstrapAdmin ? lowerEmail : "",
+            active: true,
+          }
+        : {}),
+    };
+    await setDoc(userRef, updates, { merge: true });
+    return { id: existing.id, ...current, ...updates };
   }
 
   const profile = {
     ...linkFields,
     role: resolvedRole,
     studentId: studentData ? lowerEmail : "",
-    teacherId: teacherData ? lowerEmail : "",
+    teacherId: teacherData || bootstrapAdmin ? lowerEmail : "",
     active: true,
     createdAt: serverTimestamp(),
   };

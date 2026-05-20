@@ -28,6 +28,7 @@ Because Firebase Google Sign-In checks allowed domains, add this domain in Fireb
 2. Add `mrclarkj82.github.io` to Authentication > Settings > Authorized domains.
 3. Deploy Firestore rules and indexes from this repo.
 4. Create the first admin by either:
+   - signing in as `joseph.clark@doralacademynv.org`, which is built in as the bootstrap admin,
    - adding a Firebase custom claim `admin: true`, or
    - creating `teachers/{admin-email-lowercase}` in Firestore with `name`, `email`, `emailLower`, `role: "admin"`, and `active: true`.
 5. Sign in with that admin account.

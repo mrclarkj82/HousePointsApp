@@ -48,18 +48,40 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/teachers/$(emailLower)).data.role;
     }
 
-    function validOwnUserCreate() {
+    function isBootstrapAdminEmail(emailLower) {
+      return emailLower == "joseph.clark@doralacademynv.org";
+    }
+
+    function validOwnUserRole() {
       let requestedRole = request.resource.data.role;
+      let emailLower = request.resource.data.emailLower;
+      return (
+        requestedRole == "pending"
+        || (requestedRole == "student" && importedStudent(emailLower))
+        || (requestedRole == "teacher" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "teacher")
+        || (requestedRole == "admin" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "admin")
+        || (requestedRole == "admin" && isBootstrapAdminEmail(emailLower))
+        || (requestedRole == "admin" && request.auth.token.admin == true)
+      );
+    }
+
+    function validOwnUserCreate() {
       let emailLower = request.resource.data.emailLower;
       return request.resource.data.uid == request.auth.uid
         && request.resource.data.email == request.auth.token.email
         && emailLower is string
+        && validOwnUserRole();
+    }
+
+    function validOwnUserUpdate() {
+      return request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailLower == resource.data.emailLower
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["uid", "email", "emailLower", "displayName", "photoURL", "lastLoginAt", "role", "studentId", "teacherId", "active"])
         && (
-          requestedRole == "pending"
-          || (requestedRole == "student" && importedStudent(emailLower))
-          || (requestedRole == "teacher" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "teacher")
-          || (requestedRole == "admin" && importedTeacher(emailLower) && importedTeacherRole(emailLower) == "admin")
-          || (requestedRole == "admin" && request.auth.token.admin == true)
+          request.resource.data.role == resource.data.role
+          || (resource.data.role == "pending" && validOwnUserRole())
         );
     }
 
@@ -96,13 +118,7 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if signedIn() && userId == request.auth.uid && validOwnUserCreate();
       allow update: if isAdmin()
-        || (
-          signedIn()
-          && userId == request.auth.uid
-          && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(["uid", "email", "emailLower", "displayName", "photoURL", "lastLoginAt"])
-          && request.resource.data.role == resource.data.role
-        );
+        || (signedIn() && userId == request.auth.uid && validOwnUserUpdate());
       allow delete: if isAdmin();
     }
 
