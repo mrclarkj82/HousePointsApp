@@ -41,7 +41,10 @@ function newestFirst(items) {
 }
 
 function seededAdminEmails() {
-  return String(import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS || "joseph.clark@doralacademynv.org")
+  return String(
+    import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAILS ||
+      "joseph.clark@doralacademynv.org,nicole.whitaker@doralacademynv.org"
+  )
     .split(",")
     .map(emailKey)
     .filter(Boolean);

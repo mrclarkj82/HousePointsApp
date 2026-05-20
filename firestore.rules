@@ -25,7 +25,11 @@ service cloud.firestore {
     }
 
     function isBootstrapAdminAuth() {
-      return signedIn() && request.auth.token.email == "joseph.clark@doralacademynv.org";
+      return signedIn()
+        && request.auth.token.email in [
+          "joseph.clark@doralacademynv.org",
+          "nicole.whitaker@doralacademynv.org"
+        ];
     }
 
     function isAdmin() {
@@ -53,7 +57,10 @@ service cloud.firestore {
     }
 
     function isBootstrapAdminEmail(emailLower) {
-      return emailLower == "joseph.clark@doralacademynv.org";
+      return emailLower in [
+        "joseph.clark@doralacademynv.org",
+        "nicole.whitaker@doralacademynv.org"
+      ];
     }
 
     function validOwnUserRole() {
@@ -85,7 +92,7 @@ service cloud.firestore {
           .hasOnly(["uid", "email", "emailLower", "displayName", "photoURL", "lastLoginAt", "role", "studentId", "teacherId", "active"])
         && (
           request.resource.data.role == resource.data.role
-          || (resource.data.emailLower == "joseph.clark@doralacademynv.org" && validOwnUserRole())
+          || (isBootstrapAdminEmail(resource.data.emailLower) && validOwnUserRole())
           || (resource.data.role == "pending" && validOwnUserRole())
         );
     }
