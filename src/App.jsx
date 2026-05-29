@@ -4,6 +4,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import { useAuthProfile } from "./hooks/useAuthProfile";
 import AdminDashboard from "./pages/AdminDashboard";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import LiveScoresPage from "./pages/LiveScoresPage";
 import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
@@ -106,6 +107,14 @@ export default function App() {
           element={
             <RoleRoute profile={profile} allowed={["admin"]}>
               <AdminDashboard profile={profile} />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/live-scores"
+          element={
+            <RoleRoute profile={profile} allowed={["teacher", "admin"]}>
+              <LiveScoresPage profile={profile} />
             </RoleRoute>
           }
         />

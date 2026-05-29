@@ -1,4 +1,4 @@
-import { Database, FileUp, History, Pencil, RotateCcw, Settings, ShieldCheck, Users } from "lucide-react";
+import { Database, FileUp, History, Pencil, RotateCcw, Settings, ShieldCheck, Trash2, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import EmptyState from "../components/EmptyState";
 import HouseBadge from "../components/HouseBadge";
@@ -68,6 +68,7 @@ export default function AdminDashboard({ profile }) {
   });
   const [reversalReasons, setReversalReasons] = useState({});
   const [editAmounts, setEditAmounts] = useState({});
+  const [deletingCategoryId, setDeletingCategoryId] = useState("");
 
   useEffect(() => {
     const onError = (nextError) => setError(nextError.message);
@@ -155,9 +156,39 @@ export default function AdminDashboard({ profile }) {
   async function handleCreateCategory(event) {
     event.preventDefault();
     if (!newCategory.trim()) return;
-    await saveCategory({ id: slugify(newCategory), name: newCategory.trim(), active: true });
-    setNewCategory("");
-    setMessage("Category saved.");
+    setMessage("");
+    setError("");
+    try {
+      await saveCategory({ id: slugify(newCategory), name: newCategory.trim(), active: true });
+      setNewCategory("");
+      setMessage("Category saved.");
+    } catch (categoryError) {
+      setError("Category could not be saved. Please try again.");
+    }
+  }
+
+  async function handleDeleteCategory(category) {
+    setMessage("");
+    setError("");
+    if (category.protected || category.locked || category.default || category.system || category.required) {
+      setError(`${category.name} is protected and cannot be deleted.`);
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete category "${category.name}"?\n\nHistorical awards will stay readable, but this category will be hidden from new awards.`
+    );
+    if (!confirmed) return;
+
+    setDeletingCategoryId(category.id);
+    try {
+      await deleteCategory(category, profile);
+      setMessage(`Category "${category.name}" deleted. Historical awards were kept.`);
+    } catch (deleteError) {
+      setError("Category could not be deleted. Please try again.");
+    } finally {
+      setDeletingCategoryId("");
+    }
   }
 
   async function handleCreateSeason(event) {
@@ -263,16 +294,20 @@ export default function AdminDashboard({ profile }) {
                       <button
                         type="button"
                         onClick={() => updateCategoryStatus(category.id, !category.active)}
+                        disabled={deletingCategoryId === category.id}
                         className="btn-secondary min-h-11 px-3 py-2 text-sm"
                       >
                         {category.active ? "Disable" : "Enable"}
                       </button>
                       <button
                         type="button"
-                        onClick={() => deleteCategory(category.id)}
+                        onClick={() => handleDeleteCategory(category)}
+                        disabled={deletingCategoryId === category.id || category.protected || category.locked || category.default || category.system || category.required}
                         className="btn-secondary min-h-11 px-3 py-2 text-sm"
+                        aria-label={`Delete ${category.name}`}
                       >
-                        Delete
+                        <Trash2 size={16} aria-hidden="true" />
+                        {deletingCategoryId === category.id ? "Deleting" : "Delete"}
                       </button>
                     </div>
                   </div>

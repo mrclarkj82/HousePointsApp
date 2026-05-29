@@ -170,6 +170,22 @@ export function listenPointTransactions(callback, onError) {
   return onSnapshot(query(collection(db, "pointTransactions"), orderBy("createdAt", "desc"), limit(750)), (snapshot) => callback(docList(snapshot)), onError);
 }
 
+export function listenPointTransactionsSince(startDate, callback, onError) {
+  return onSnapshot(
+    query(collection(db, "pointTransactions"), where("createdAt", ">=", startDate)),
+    (snapshot) => callback(docList(snapshot)),
+    onError
+  );
+}
+
+export function listenLatestPointTransaction(callback, onError) {
+  return onSnapshot(
+    query(collection(db, "pointTransactions"), orderBy("createdAt", "desc"), limit(1)),
+    (snapshot) => callback(docList(snapshot)[0] || null),
+    onError
+  );
+}
+
 export async function seedDefaultData() {
   const batch = writeBatch(db);
   HOUSES.forEach((house) => {
@@ -339,6 +355,10 @@ export async function saveCategory(category) {
       id,
       name: category.name,
       active: category.active ?? true,
+      deleted: false,
+      deletedAt: null,
+      deletedBy: "",
+      deletedByName: "",
       sortOrder: category.sortOrder ?? 99,
       updatedAt: serverTimestamp(),
     },
@@ -353,10 +373,19 @@ export async function updateCategoryStatus(categoryId, active) {
   });
 }
 
-export async function deleteCategory(categoryId) {
+export async function deleteCategory(category, adminProfile = {}) {
+  const categoryId = typeof category === "string" ? category : category?.id;
+  if (!categoryId) throw new Error("Category not found.");
+  if (typeof category === "object" && (category.protected || category.locked || category.default || category.system || category.required)) {
+    throw new Error("This category is protected and cannot be deleted.");
+  }
+
   await updateDoc(doc(db, "categories", categoryId), {
     active: false,
     deleted: true,
+    deletedAt: serverTimestamp(),
+    deletedBy: adminProfile.uid || adminProfile.id || "",
+    deletedByName: adminProfile.displayName || adminProfile.name || adminProfile.email || "Admin",
     updatedAt: serverTimestamp(),
   });
 }
@@ -399,23 +428,34 @@ export async function awardPoints({ teacherProfile, students = [], directHouseId
   const resolvedSeasonId = seasonId || "full-year";
   const teacherId = teacherProfile.teacherId || teacherProfile.uid || teacherProfile.id;
   const teacherName = teacherProfile.displayName || teacherProfile.name || teacherProfile.email || "Teacher";
+  const teacherUid = teacherProfile.uid || teacherProfile.id || teacherId;
+  const categoryName = typeof category === "string" ? category : category?.name;
+  const categoryId = typeof category === "string" ? slugify(category) : category?.id || slugify(categoryName);
 
   targets.forEach((target) => {
     const houseId = target.houseId || directHouseId;
     if (!houseId) return;
+    const studentId = target.id || target.studentId || null;
+    const studentName = studentId ? target.name || target.studentName || null : null;
     const transactionRef = doc(collection(db, "pointTransactions"));
     batch.set(transactionRef, {
       transactionId: transactionRef.id,
-      studentId: target.id || target.studentId || null,
-      studentName: target.id ? target.name : null,
+      studentId,
+      studentName,
       houseId,
       houseName: HOUSE_BY_ID[houseId]?.name || target.houseName || houseId,
       teacherId,
       teacherName,
       amount: numericAmount,
-      category,
+      points: numericAmount,
+      category: categoryName,
+      categoryId,
+      categoryName,
       note: note || "",
       createdAt: serverTimestamp(),
+      awardedAt: serverTimestamp(),
+      awardedByUid: teacherUid,
+      awardedByName: teacherName,
       seasonId: resolvedSeasonId,
       awardType,
       reversed: false,
@@ -424,9 +464,9 @@ export async function awardPoints({ teacherProfile, students = [], directHouseId
       reversalReason: "",
     });
 
-    if (target.id || target.studentId) {
+    if (studentId) {
       batch.set(
-        doc(db, "students", target.id || target.studentId),
+        doc(db, "students", studentId),
         {
           totalPoints: increment(numericAmount),
           updatedAt: serverTimestamp(),

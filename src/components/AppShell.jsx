@@ -1,4 +1,4 @@
-import { Award, Castle, GraduationCap, LogOut, ShieldCheck, Trophy } from "lucide-react";
+import { Activity, Award, Castle, GraduationCap, LogOut, ShieldCheck, Trophy } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { logOut } from "../services/firebase";
 import { classNames } from "../utils/constants";
@@ -10,11 +10,13 @@ const NAV_BY_ROLE = {
   ],
   teacher: [
     { to: "/teacher", label: "Award", icon: Award },
+    { to: "/live-scores", label: "Live Scores", icon: Activity },
     { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ],
   admin: [
     { to: "/admin", label: "Admin", icon: ShieldCheck },
     { to: "/teacher", label: "Award", icon: Award },
+    { to: "/live-scores", label: "Live Scores", icon: Activity },
     { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ],
 };

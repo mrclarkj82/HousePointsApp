@@ -1,5 +1,6 @@
-import { Check, Search, Send, Users } from "lucide-react";
+import { Activity, Check, Search, Send, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import HouseBadge from "../components/HouseBadge";
 import {
@@ -165,24 +166,30 @@ export default function TeacherDashboard({ profile }) {
               <p className="text-sm font-bold uppercase tracking-normal text-doral-red">Fast Award</p>
               <h2 className="section-title">Award points</h2>
             </div>
-            <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
-              {[
-                ["students", "Students"],
-                ["period", "Period"],
-                ["house", "House"],
-              ].map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setMode(id)}
-                  className={classNames(
-                    "min-h-11 rounded-lg px-3 text-sm font-black",
-                    mode === id ? "bg-white text-doral-red shadow-sm" : "text-slate-600"
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link to="/live-scores" className="btn-secondary justify-center px-4 py-2 text-sm">
+                <Activity size={18} aria-hidden="true" />
+                View Live Scores
+              </Link>
+              <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+                {[
+                  ["students", "Students"],
+                  ["period", "Period"],
+                  ["house", "House"],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setMode(id)}
+                    className={classNames(
+                      "min-h-11 rounded-lg px-3 text-sm font-black",
+                      mode === id ? "bg-white text-doral-red shadow-sm" : "text-slate-600"
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

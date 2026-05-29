@@ -181,8 +181,7 @@ service cloud.firestore {
     match /pointTransactions/{transactionId} {
       allow create: if validAwardCreate();
       allow get, list: if isAdmin()
-        || (isTeacher() && resource.data.teacherId == userData().teacherId)
-        || (isTeacher() && resource.data.teacherId == request.auth.uid)
+        || isTeacher()
         || (isStudent() && resource.data.studentId == userData().studentId);
       allow update: if isAdmin();
       allow delete: if false;
