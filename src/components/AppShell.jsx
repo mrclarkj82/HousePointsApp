@@ -47,46 +47,61 @@ function NavButton({ item, mobile = false }) {
 export default function AppShell({ profile, children }) {
   const location = useLocation();
   const navItems = NAV_BY_ROLE[profile?.role] || [];
-  const title = navItems.find((item) => item.to === location.pathname)?.label || "House Points";
+  const isLiveScoresRoute = location.pathname.startsWith("/live-scores");
+  const isDisplayRoute = location.pathname === "/live-scores/display";
+  const activeNavItem = navItems.find((item) => item.to === location.pathname || (item.to === "/live-scores" && isLiveScoresRoute));
+  const title = activeNavItem?.label || "House Points";
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0">
-      <header className="app-header sticky top-0 z-20 shadow-soft backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-amber-300/40 bg-gradient-to-br from-red-800 to-slate-900 text-amber-100">
-              <Castle size={22} aria-hidden="true" />
+    <div className={classNames("min-h-screen", isDisplayRoute ? "" : "pb-24 md:pb-0")}>
+      {isDisplayRoute ? null : (
+        <header className="app-header sticky top-0 z-20 shadow-soft backdrop-blur">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-amber-300/40 bg-gradient-to-br from-red-800 to-slate-900 text-amber-100">
+                <Castle size={22} aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <p className="app-kicker text-sm uppercase tracking-normal">Doral Red Rock</p>
+                <h1 className="app-title truncate text-xl sm:text-2xl">{title}</h1>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="app-kicker text-sm uppercase tracking-normal">Doral Red Rock</p>
-              <h1 className="app-title truncate text-xl sm:text-2xl">{title}</h1>
-            </div>
+            <nav className="hidden items-center gap-2 md:flex">
+              {navItems.map((item) => (
+                <NavButton key={item.to} item={item} />
+              ))}
+            </nav>
+            <button
+              type="button"
+              onClick={logOut}
+              className="app-signout inline-flex min-h-11 items-center justify-center rounded-lg border px-3 active:bg-amber-100"
+              aria-label="Sign out"
+            >
+              <LogOut size={20} aria-hidden="true" />
+            </button>
           </div>
-          <nav className="hidden items-center gap-2 md:flex">
+        </header>
+      )}
+
+      <main
+        className={
+          isLiveScoresRoute
+            ? classNames("w-full max-w-none px-0 py-0", isDisplayRoute ? "min-h-[100dvh]" : "min-h-[calc(100dvh-73px)]")
+            : "mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8"
+        }
+      >
+        {children}
+      </main>
+
+      {isDisplayRoute ? null : (
+        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-amber-200/40 bg-slate-950/96 px-2 pb-[env(safe-area-inset-bottom)] pt-2 shadow-[0_-8px_30px_-22px_rgba(15,23,42,0.45)] backdrop-blur md:hidden">
+          <div className="flex gap-2">
             {navItems.map((item) => (
-              <NavButton key={item.to} item={item} />
+              <NavButton key={item.to} item={item} mobile />
             ))}
-          </nav>
-          <button
-            type="button"
-            onClick={logOut}
-            className="app-signout inline-flex min-h-11 items-center justify-center rounded-lg border px-3 active:bg-amber-100"
-            aria-label="Sign out"
-          >
-            <LogOut size={20} aria-hidden="true" />
-          </button>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">{children}</main>
-
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-amber-200/40 bg-slate-950/96 px-2 pb-[env(safe-area-inset-bottom)] pt-2 shadow-[0_-8px_30px_-22px_rgba(15,23,42,0.45)] backdrop-blur md:hidden">
-        <div className="flex gap-2">
-          {navItems.map((item) => (
-            <NavButton key={item.to} item={item} mobile />
-          ))}
-        </div>
-      </nav>
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

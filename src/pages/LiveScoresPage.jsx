@@ -1,11 +1,9 @@
-import { Activity, ArrowLeft, Clock, Medal, Trophy, UserRound } from "lucide-react";
+import { ArrowLeft, Clock, Maximize2, Minimize2, Sparkles, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import EmptyState from "../components/EmptyState";
-import HouseBadge from "../components/HouseBadge";
 import HouseCrest from "../components/HouseCrest";
 import { listenHouses, listenLatestPointTransaction, listenPointTransactionsSince } from "../services/firestore";
-import { HOUSES, classNames, formatDateTime, getDateRangeStart, getHouseName, sortHousesByPoints } from "../utils/constants";
+import { HOUSES, formatDateTime, getDateRangeStart, getHouseName, sortHousesByPoints } from "../utils/constants";
 
 function toDate(value) {
   if (!value) return null;
@@ -18,7 +16,42 @@ function getTransactionPoints(transaction) {
 }
 
 function getTransactionCategory(transaction) {
-  return transaction?.categoryName || transaction?.category || "Uncategorized";
+  return transaction?.categoryName || transaction?.category || "House Points";
+}
+
+function getTransactionId(transaction) {
+  return transaction?.transactionId || transaction?.id || "latest-award";
+}
+
+function formatScore(points) {
+  return `${Math.round(Number(points || 0))} Pts`;
+}
+
+function ordinal(rank) {
+  const ones = rank % 10;
+  const tens = rank % 100;
+  const suffix = tens >= 11 && tens <= 13 ? "th" : ones === 1 ? "st" : ones === 2 ? "nd" : ones === 3 ? "rd" : "th";
+  return { number: rank, suffix };
+}
+
+function initialsFor(name) {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return "HP";
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function hexToRgb(hex) {
+  const clean = String(hex || "").replace("#", "");
+  if (clean.length !== 6) return "153, 27, 27";
+  const value = Number.parseInt(clean, 16);
+  return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
 }
 
 function mergeHouseRecords(houses) {
@@ -36,7 +69,22 @@ function mergeHouseRecords(houses) {
   return [...officialHouses, ...extraHouses];
 }
 
-export default function LiveScoresPage() {
+function houseStyle(house) {
+  const hex = house?.hex || "#991b1b";
+  return {
+    "--house-color": hex,
+    "--house-rgb": hexToRgb(hex),
+  };
+}
+
+function placementForRank(rank) {
+  if (rank === 1) return "first";
+  if (rank === 2) return "second";
+  if (rank === 3) return "third";
+  return "fourth";
+}
+
+export default function LiveScoresPage({ displayMode = false }) {
   const [houses, setHouses] = useState([]);
   const [quarterTransactions, setQuarterTransactions] = useState([]);
   const [latestTransaction, setLatestTransaction] = useState(null);
@@ -83,7 +131,6 @@ export default function LiveScoresPage() {
   }, [quarterStart]);
 
   const houseRows = useMemo(() => sortHousesByPoints(mergeHouseRecords(houses)), [houses]);
-  const maxHousePoints = Math.max(...houseRows.map((house) => Number(house.totalPoints || 0)), 1);
   const quarterName = useMemo(() => `Quarter ${Math.floor(new Date().getMonth() / 3) + 1}`, []);
 
   const latestAward = useMemo(() => {
@@ -126,180 +173,199 @@ export default function LiveScoresPage() {
     );
   }, [houseRows, quarterStart, quarterTransactions]);
 
+  const loading = loadingHouses || loadingTransactions || loadingLatest;
+
   return (
-    <div className="space-y-5">
-      <section className="panel overflow-hidden">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-normal text-doral-red">Live Scores</p>
-            <h2 className="section-title">House standings in real time</h2>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-600">
-              Watch each award ripple into the house totals, latest point moment, and current-quarter student leaders.
-            </p>
+    <div className="school-leaderboard-page" aria-busy={loading}>
+      <HallBackground />
+      <div className="school-leaderboard-stage">
+        <header className="school-leaderboard-header">
+          <div className="leaderboard-ribbon" aria-label="School Leaderboard">
+            <span>School Leaderboard</span>
           </div>
-          <Link to="/teacher" className="btn-secondary w-full sm:w-auto">
-            <ArrowLeft size={18} aria-hidden="true" />
-            Award points
-          </Link>
-        </div>
-        {error ? (
-          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
-            {error}
-          </p>
-        ) : null}
-      </section>
-
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_0.9fr]">
-        <section className="panel">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-xl font-black text-slate-950">Live house scores</h3>
-              <p className="mt-1 text-sm font-semibold text-slate-500">Ranked by total points</p>
-            </div>
-            <Trophy className="text-doral-red" size={24} aria-hidden="true" />
+          <div className="scoreboard-actions">
+            {displayMode ? (
+              <Link to="/live-scores" className="scoreboard-action-button">
+                <Minimize2 size={18} aria-hidden="true" />
+                Exit Display
+              </Link>
+            ) : (
+              <>
+                <Link to="/teacher" className="scoreboard-action-button">
+                  <ArrowLeft size={18} aria-hidden="true" />
+                  Award
+                </Link>
+                <Link to="/live-scores/display" className="scoreboard-action-button">
+                  <Maximize2 size={18} aria-hidden="true" />
+                  Display
+                </Link>
+              </>
+            )}
           </div>
+        </header>
 
-          {loadingHouses ? (
-            <LoadingCardGrid />
-          ) : houseRows.length ? (
-            <div className="grid gap-3 md:grid-cols-2">
-              {houseRows.map((house, index) => {
-                const total = Number(house.totalPoints || 0);
-                const width = `${Math.max(4, Math.round((total / maxHousePoints) * 100))}%`;
-                return (
-                  <article key={house.id} className="adventure-surface rounded-lg border border-amber-200 p-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <HouseCrest houseId={house.id} />
-                        <div className="min-w-0">
-                          <p className="text-sm font-black uppercase tracking-normal text-doral-red">Rank {index + 1}</p>
-                          <h4 className="truncate text-xl font-black text-slate-950">{house.name || getHouseName(house.id)}</h4>
-                        </div>
-                      </div>
-                      <p className="text-right text-3xl font-black text-slate-950">{total.toLocaleString()}</p>
-                    </div>
-                    <div className="mt-4 h-3 rounded-full bg-white/85 ring-1 ring-amber-200">
-                      <div className="h-full rounded-full" style={{ width, backgroundColor: house.hex || "#991b1b" }} />
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState title="No houses found" body="Seed the default house records from Admin setup." />
-          )}
+        {error ? <p className="scoreboard-error">{error}</p> : null}
+
+        <section className="house-banner-grid" aria-label="Live house rankings">
+          {houseRows.slice(0, 4).map((house, index) => (
+            <HouseBanner key={house.id} house={house} rank={index + 1} loading={loadingHouses} />
+          ))}
         </section>
 
-        <section className="panel">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-xl font-black text-slate-950">Most recent award</h3>
-              <p className="mt-1 text-sm font-semibold text-slate-500">Updates as points are awarded</p>
-            </div>
-            <Activity className="text-doral-red" size={24} aria-hidden="true" />
-          </div>
-
-          {loadingLatest && loadingTransactions ? (
-            <LoadingLineCard />
-          ) : latestAward ? (
-            <article className="rounded-lg border border-amber-200 bg-white p-4 shadow-sm" aria-live="polite">
-              <div className="flex items-start gap-3">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-red-800 to-amber-700 text-white">
-                  <UserRound size={24} aria-hidden="true" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-xl font-black text-slate-950">
-                    {latestAward.studentName || latestAward.houseName || getHouseName(latestAward.houseId)}
-                  </p>
-                  <div className="mt-2">
-                    <HouseBadge houseId={latestAward.houseId} />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <ScoreFact label="Points" value={`+${getTransactionPoints(latestAward).toLocaleString()}`} />
-                <ScoreFact label="Category" value={getTransactionCategory(latestAward)} />
-              </div>
-              <p className="mt-4 text-sm font-semibold text-slate-600">
-                Awarded by {latestAward.awardedByName || latestAward.teacherName || "Unknown teacher"}
-              </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
-                <Clock size={16} aria-hidden="true" />
-                {formatDateTime(latestAward.createdAt || latestAward.awardedAt)}
-              </p>
-            </article>
-          ) : (
-            <EmptyState title="No awards yet" body="The first point award will appear here automatically." />
-          )}
+        <section className="scoreboard-lower" aria-label="Recent awards and quarter leaders">
+          <RecentAwardSpotlight latestAward={latestAward} loading={loadingLatest && loadingTransactions} />
+          <QuarterLeaders
+            houseRows={houseRows}
+            topStudentsByHouse={topStudentsByHouse}
+            loading={loadingTransactions}
+            quarterName={quarterName}
+            quarterStart={quarterStart}
+          />
         </section>
       </div>
+    </div>
+  );
+}
 
-      <section className="panel">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-xl font-black text-slate-950">Current-quarter top students</h3>
-            <p className="mt-1 text-sm font-semibold text-slate-500">
-              {quarterName}, starting {quarterStart.toLocaleDateString()}
-            </p>
+function HallBackground() {
+  return (
+    <div className="school-hall-background" aria-hidden="true">
+      <div className="hall-window hall-window--left">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="hall-window hall-window--right">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="hall-arch" />
+      <div className="hall-floor" />
+    </div>
+  );
+}
+
+function HouseBanner({ house, rank, loading }) {
+  const placement = placementForRank(rank);
+  const rankLabel = ordinal(rank);
+  const total = Number(house.totalPoints || 0);
+
+  return (
+    <div className={`house-banner-slot house-banner-slot--${placement}`}>
+      <article className={`house-banner house-banner--${placement}`} style={houseStyle(house)}>
+        <span className="house-banner__chain house-banner__chain--left" aria-hidden="true" />
+        <span className="house-banner__chain house-banner__chain--right" aria-hidden="true" />
+        <span className="house-banner__rod" aria-hidden="true" />
+        <div className="house-banner__cloth">
+          {rank === 1 ? (
+            <div className="house-banner__crown" aria-hidden="true">
+              <Trophy size={30} />
+            </div>
+          ) : null}
+          <div className="house-banner__rank" aria-label={`${rankLabel.number}${rankLabel.suffix} place`}>
+            <span>{rankLabel.number}</span>
+            <small>{rankLabel.suffix}</small>
           </div>
-          <Medal className="text-doral-red" size={24} aria-hidden="true" />
+          <div className="house-banner__crest">
+            <HouseCrest houseId={house.id} size={rank === 1 ? "lg" : "md"} />
+          </div>
+          <h2>{house.name || getHouseName(house.id)}</h2>
+          <p key={`${house.id}-${total}`} className="house-banner__score score-update-pulse">
+            {loading ? "Loading" : formatScore(total)}
+          </p>
         </div>
+      </article>
+    </div>
+  );
+}
 
-        {loadingTransactions ? (
-          <LoadingCardGrid count={4} />
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {houseRows.map((house) => {
-              const leader = topStudentsByHouse[house.id];
-              return (
-                <article key={house.id} className="rounded-lg border border-amber-200 bg-slate-50 p-4">
-                  <div className="flex items-center gap-3">
-                    <HouseCrest houseId={house.id} size="sm" />
-                    <div>
-                      <h4 className="font-black text-slate-950">{house.name || getHouseName(house.id)}</h4>
-                      <p className="text-sm font-semibold text-slate-500">Top student</p>
-                    </div>
-                  </div>
-                  {leader ? (
-                    <div className="mt-4">
-                      <p className="text-lg font-black text-slate-950">{leader.studentName}</p>
-                      <p className="mt-1 text-3xl font-black text-doral-red">+{leader.total.toLocaleString()}</p>
-                      <p className="text-sm font-semibold text-slate-500">points this quarter</p>
-                    </div>
-                  ) : (
-                    <p className="mt-4 rounded-lg bg-white p-3 text-sm font-semibold text-slate-600">
-                      No points yet this quarter.
-                    </p>
-                  )}
-                </article>
-              );
-            })}
+function RecentAwardSpotlight({ latestAward, loading }) {
+  const name = latestAward?.studentName || latestAward?.houseName || getHouseName(latestAward?.houseId);
+  const points = getTransactionPoints(latestAward);
+
+  return (
+    <article
+      key={latestAward ? getTransactionId(latestAward) : "empty-recent-award"}
+      className="recent-award-plaque score-update-pulse"
+      style={houseStyle(HOUSES.find((house) => house.id === latestAward?.houseId) || {})}
+      aria-live="polite"
+    >
+      <div className="plaque-heading">
+        <Sparkles size={18} aria-hidden="true" />
+        Recent Award
+      </div>
+      {loading ? (
+        <div className="plaque-empty">Loading latest award</div>
+      ) : latestAward ? (
+        <>
+          <div className="recent-award-main">
+            <div className="student-avatar">{initialsFor(name)}</div>
+            <div className="min-w-0">
+              <h2>{name}</h2>
+              <p>{getHouseName(latestAward.houseId)}</p>
+            </div>
           </div>
+          <div className="recent-award-details">
+            <strong>+{formatScore(points)}</strong>
+            <span>{getTransactionCategory(latestAward)}</span>
+          </div>
+          <div className="recent-award-meta">
+            <span>{latestAward.awardedByName || latestAward.teacherName || "Unknown teacher"}</span>
+            <span>
+              <Clock size={15} aria-hidden="true" />
+              {formatDateTime(latestAward.createdAt || latestAward.awardedAt)}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="plaque-empty">No awards yet</div>
+      )}
+    </article>
+  );
+}
+
+function QuarterLeaders({ houseRows, topStudentsByHouse, loading, quarterName, quarterStart }) {
+  return (
+    <article className="quarter-leaders-panel">
+      <div className="quarter-leaders-title">
+        <Trophy size={19} aria-hidden="true" />
+        <div>
+          <h2>Top Students</h2>
+          <p>
+            {quarterName}, starting {quarterStart.toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+      <div className="student-plaque-grid">
+        {houseRows.slice(0, 4).map((house) => {
+          const leader = topStudentsByHouse[house.id];
+          return <StudentPlaque key={house.id} house={house} leader={leader} loading={loading} />;
+        })}
+      </div>
+    </article>
+  );
+}
+
+function StudentPlaque({ house, leader, loading }) {
+  const name = leader?.studentName || "No points yet.";
+  return (
+    <article className="student-plaque" style={houseStyle(house)}>
+      <span className="student-plaque__rod" aria-hidden="true" />
+      <div className="student-plaque__avatar">{leader ? initialsFor(name) : "..."}</div>
+      <div className="student-plaque__body">
+        <p className="student-plaque__house">{house.name || getHouseName(house.id)}</p>
+        {loading ? (
+          <h3>Loading</h3>
+        ) : leader ? (
+          <>
+            <h3>{name}</h3>
+            <p className="student-plaque__points">+{formatScore(leader.total)}</p>
+          </>
+        ) : (
+          <h3>No points yet.</h3>
         )}
-      </section>
-    </div>
+      </div>
+    </article>
   );
-}
-
-function ScoreFact({ label, value }) {
-  return (
-    <div className="rounded-lg bg-slate-50 p-3">
-      <p className="text-xs font-black uppercase tracking-normal text-slate-500">{label}</p>
-      <p className="mt-1 break-words text-lg font-black text-slate-950">{value}</p>
-    </div>
-  );
-}
-
-function LoadingCardGrid({ count = 4 }) {
-  return (
-    <div className={classNames("grid gap-3", count > 2 ? "md:grid-cols-2" : "")}>
-      {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="min-h-32 animate-pulse rounded-lg border border-amber-100 bg-amber-50/60" />
-      ))}
-    </div>
-  );
-}
-
-function LoadingLineCard() {
-  return <div className="min-h-64 animate-pulse rounded-lg border border-amber-100 bg-amber-50/60" />;
 }

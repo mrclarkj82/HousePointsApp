@@ -8,6 +8,10 @@
     background: #f8fafc;
   }
 
+  #root {
+    min-height: 100%;
+  }
+
   body {
     min-height: 100%;
     margin: 0;
@@ -108,5 +112,703 @@
     background-size:
       52px 52px,
       74px 74px;
+  }
+
+  .school-leaderboard-page {
+    position: relative;
+    min-height: inherit;
+    width: 100%;
+    overflow: hidden;
+    color: #fff7df;
+    background: #171717;
+  }
+
+  .school-hall-background {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(5, 8, 18, 0.96) 0 12%, rgba(42, 43, 48, 0.9) 16%, transparent 29%, transparent 71%, rgba(42, 43, 48, 0.9) 84%, rgba(5, 8, 18, 0.96) 100%),
+      linear-gradient(180deg, #e8dec7 0%, #c6bda8 42%, #7e776c 68%, #2e3037 100%);
+  }
+
+  .school-hall-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 9.5%, rgba(255, 255, 255, 0.15) 9.8% 10.2%, transparent 10.6% 20%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 38%, rgba(0, 0, 0, 0.48));
+    opacity: 0.72;
+  }
+
+  .school-hall-background::after {
+    content: "";
+    position: absolute;
+    inset: 58% 0 0;
+    background:
+      linear-gradient(110deg, transparent 0 28%, rgba(255, 255, 255, 0.2) 28.5% 29%, transparent 29.4% 100%),
+      linear-gradient(250deg, transparent 0 28%, rgba(255, 255, 255, 0.16) 28.5% 29%, transparent 29.4% 100%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(15, 23, 42, 0.62));
+    clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+  }
+
+  .hall-window {
+    position: absolute;
+    top: clamp(2rem, 4vh, 3.5rem);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+    width: clamp(7rem, 10vw, 13rem);
+    height: clamp(14rem, 42vh, 30rem);
+    border: 0.45rem solid rgba(255, 255, 255, 0.62);
+    background: rgba(243, 244, 246, 0.45);
+    box-shadow: inset 0 0 0 2px rgba(120, 53, 15, 0.22), 0 1.5rem 3rem rgba(15, 23, 42, 0.3);
+  }
+
+  .hall-window span {
+    background: linear-gradient(180deg, #9bd7f5 0%, #d9f6ff 48%, #8ec5df 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+  }
+
+  .hall-window--left {
+    left: clamp(1rem, 5vw, 7rem);
+  }
+
+  .hall-window--right {
+    right: clamp(1rem, 5vw, 7rem);
+  }
+
+  .hall-arch {
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    width: clamp(17rem, 28vw, 34rem);
+    height: clamp(19rem, 48vh, 38rem);
+    transform: translateX(-50%);
+    border: clamp(0.7rem, 1vw, 1.25rem) solid rgba(255, 255, 255, 0.54);
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(180deg, rgba(31, 41, 55, 0.5), rgba(17, 24, 39, 0.4));
+    box-shadow: inset 0 0 4rem rgba(0, 0, 0, 0.28), 0 2rem 4rem rgba(0, 0, 0, 0.18);
+  }
+
+  .hall-floor {
+    position: absolute;
+    left: 50%;
+    bottom: -4%;
+    width: 64%;
+    height: 33%;
+    transform: translateX(-50%);
+    background:
+      linear-gradient(90deg, transparent 0 48%, rgba(250, 204, 21, 0.24) 49% 51%, transparent 52% 100%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(15, 23, 42, 0.54));
+    clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  }
+
+  .school-leaderboard-stage {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: auto minmax(24rem, 1fr) auto;
+    gap: clamp(0.55rem, 1.3vmin, 1rem);
+    min-height: inherit;
+    padding: clamp(0.75rem, 1.8vmin, 1.5rem);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
+  }
+
+  .school-leaderboard-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    min-height: clamp(4.5rem, 10vmin, 7rem);
+  }
+
+  .leaderboard-ribbon {
+    position: relative;
+    display: grid;
+    min-width: min(72vw, 46rem);
+    place-items: center;
+    align-self: start;
+    padding: clamp(0.75rem, 1.4vmin, 1.1rem) clamp(3rem, 8vw, 8rem);
+    color: #fff8dc;
+    background: linear-gradient(180deg, #ffd66b 0%, #d48a24 58%, #a54b13 100%);
+    border: 2px solid rgba(255, 236, 158, 0.95);
+    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.32), inset 0 0.25rem 0 rgba(255, 255, 255, 0.28);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.65rem, 4.2vw, 4rem);
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .scoreboard-actions {
+    position: absolute;
+    right: clamp(0.25rem, 1.5vw, 1.5rem);
+    top: 0.2rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .scoreboard-action-button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 218, 121, 0.78);
+    background: rgba(15, 23, 42, 0.62);
+    padding: 0.65rem 0.9rem;
+    color: #fff7df;
+    font-size: 0.92rem;
+    font-weight: 800;
+    box-shadow: 0 0.7rem 1.5rem rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(10px);
+  }
+
+  .scoreboard-error {
+    position: absolute;
+    left: 50%;
+    top: clamp(4.6rem, 10vmin, 7rem);
+    z-index: 3;
+    width: min(92vw, 42rem);
+    transform: translateX(-50%);
+    border: 1px solid rgba(254, 202, 202, 0.9);
+    border-radius: 0.75rem;
+    background: rgba(127, 29, 29, 0.9);
+    padding: 0.75rem 1rem;
+    color: #fff;
+    text-align: center;
+    font-weight: 800;
+  }
+
+  .house-banner-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+    min-height: clamp(24rem, 53dvh, 35rem);
+    max-height: 57dvh;
+  }
+
+  .house-banner-slot {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .house-banner-slot--first {
+    z-index: 4;
+    grid-column: 5 / 9;
+    grid-row: 1 / 5;
+  }
+
+  .house-banner-slot--second {
+    z-index: 3;
+    grid-column: 2 / 5;
+    grid-row: 2 / 6;
+  }
+
+  .house-banner-slot--third {
+    z-index: 3;
+    grid-column: 9 / 12;
+    grid-row: 2 / 6;
+  }
+
+  .house-banner-slot--fourth {
+    z-index: 2;
+    grid-column: 5 / 9;
+    grid-row: 5 / 8;
+  }
+
+  .house-banner {
+    position: relative;
+    width: min(100%, clamp(13.5rem, 21vw, 24rem));
+    padding-top: clamp(1.3rem, 2.3vmin, 2rem);
+    filter: drop-shadow(0 1.2rem 1.1rem rgba(0, 0, 0, 0.36));
+  }
+
+  .house-banner--first {
+    width: min(100%, clamp(17rem, 27vw, 31rem));
+  }
+
+  .house-banner--fourth {
+    width: min(100%, clamp(13rem, 20vw, 22rem));
+  }
+
+  .house-banner__chain {
+    position: absolute;
+    top: calc(-1 * clamp(3.5rem, 8vmin, 7rem));
+    z-index: 0;
+    width: clamp(0.22rem, 0.35vw, 0.38rem);
+    height: clamp(4.4rem, 9vmin, 7.5rem);
+    border-radius: 999px;
+    background:
+      repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0 0.38rem, rgba(80, 84, 92, 0.95) 0.42rem 0.8rem);
+    box-shadow: 0 0 0.55rem rgba(255, 255, 255, 0.32);
+  }
+
+  .house-banner__chain--left {
+    left: 12%;
+  }
+
+  .house-banner__chain--right {
+    right: 12%;
+  }
+
+  .house-banner__rod,
+  .student-plaque__rod {
+    position: absolute;
+    left: -8%;
+    right: -8%;
+    top: 0.75rem;
+    z-index: 3;
+    height: clamp(0.65rem, 1.15vmin, 1rem);
+    border-radius: 999px;
+    background:
+      linear-gradient(90deg, #2b1d28, #6f4b42 18%, #1e1728 48%, #7b594f 80%, #2b1d28),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent);
+    box-shadow: inset 0 0 0 1px rgba(255, 238, 170, 0.18), 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+  }
+
+  .house-banner__cloth {
+    position: relative;
+    display: flex;
+    min-height: clamp(13.5rem, 28vmin, 21rem);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: clamp(1.6rem, 3vmin, 2.6rem) clamp(1rem, 2vw, 2rem) clamp(2.4rem, 4vmin, 3.5rem);
+    background:
+      linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 24%),
+      linear-gradient(145deg, rgba(var(--house-rgb), 0.98), rgba(17, 24, 39, 0.94));
+    border: 2px solid rgba(255, 233, 154, 0.6);
+    clip-path: polygon(0 0, 100% 0, 100% 82%, 75% 100%, 50% 88%, 25% 100%, 0 82%);
+    box-shadow: inset 0 0 0 0.3rem rgba(255, 255, 255, 0.08), inset 0 -2.5rem 3rem rgba(0, 0, 0, 0.25);
+  }
+
+  .house-banner__cloth::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(105deg, transparent 0 1.4rem, rgba(255, 255, 255, 0.08) 1.45rem 1.65rem),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 24%, transparent 76%, rgba(255, 255, 255, 0.13));
+    opacity: 0.7;
+  }
+
+  .house-banner--first .house-banner__cloth {
+    min-height: clamp(16.5rem, 34vmin, 25rem);
+    box-shadow: 0 0 3rem rgba(255, 203, 82, 0.48), inset 0 0 0 0.35rem rgba(255, 255, 255, 0.08), inset 0 -2.8rem 3.2rem rgba(0, 0, 0, 0.25);
+  }
+
+  .house-banner__crown {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 2;
+    color: #ffe48a;
+    filter: drop-shadow(0 0 0.8rem rgba(255, 216, 104, 0.8));
+  }
+
+  .house-banner__rank,
+  .house-banner__crest,
+  .house-banner h2,
+  .house-banner__score {
+    position: relative;
+    z-index: 1;
+  }
+
+  .house-banner__rank {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    color: #fff8dc;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    line-height: 0.85;
+  }
+
+  .house-banner__rank span {
+    font-size: clamp(3rem, 7vw, 7rem);
+  }
+
+  .house-banner__rank small {
+    margin-top: 0.45em;
+    font-size: clamp(1.05rem, 2vw, 2rem);
+    text-transform: uppercase;
+  }
+
+  .house-banner--first .house-banner__rank span {
+    font-size: clamp(4.2rem, 8.5vw, 8.6rem);
+  }
+
+  .house-banner__crest {
+    margin-top: clamp(0.25rem, 0.8vmin, 0.75rem);
+  }
+
+  .house-banner h2 {
+    max-width: 100%;
+    margin-top: clamp(0.45rem, 1vmin, 0.85rem);
+    overflow-wrap: anywhere;
+    color: #fff8dc;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.45rem, 3vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .house-banner__score {
+    margin-top: clamp(0.3rem, 0.8vmin, 0.7rem);
+    color: #fff4cf;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.15rem, 2.3vw, 2.35rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-update-pulse {
+    animation: scorePulse 1.2s ease-out;
+  }
+
+  @keyframes scorePulse {
+    0% {
+      transform: scale(0.96);
+      filter: brightness(1.22);
+    }
+
+    55% {
+      transform: scale(1.035);
+      filter: brightness(1.08);
+    }
+
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+  }
+
+  .scoreboard-lower {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.65fr) minmax(30rem, 1.35fr);
+    gap: clamp(0.7rem, 1.4vmin, 1.2rem);
+    align-items: stretch;
+    min-height: clamp(10rem, 22dvh, 15.5rem);
+  }
+
+  .recent-award-plaque,
+  .quarter-leaders-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 222, 132, 0.7);
+    background:
+      linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(17, 24, 39, 0.72)),
+      linear-gradient(145deg, rgba(var(--house-rgb), 0.38), transparent 65%);
+    box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .recent-award-plaque {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 1.35rem;
+    padding: clamp(0.9rem, 1.6vmin, 1.25rem);
+  }
+
+  .recent-award-plaque::after,
+  .quarter-leaders-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.15), transparent 24%, transparent 74%, rgba(255, 255, 255, 0.1));
+  }
+
+  .plaque-heading {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #ffe9a6;
+    font-size: clamp(0.78rem, 1.2vw, 1rem);
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .recent-award-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: clamp(0.65rem, 1.2vmin, 1rem);
+  }
+
+  .student-avatar,
+  .student-plaque__avatar {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 999px;
+    border: 0.22rem solid rgba(255, 239, 178, 0.82);
+    background: rgba(3, 7, 18, 0.76);
+    color: #fff8dc;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    box-shadow: inset 0 0 1.2rem rgba(255, 255, 255, 0.08), 0 0.7rem 1.5rem rgba(0, 0, 0, 0.28);
+  }
+
+  .student-avatar {
+    width: clamp(3.6rem, 6.2vmin, 5.8rem);
+    height: clamp(3.6rem, 6.2vmin, 5.8rem);
+    font-size: clamp(1.25rem, 2.2vw, 2.15rem);
+  }
+
+  .recent-award-main h2 {
+    overflow: hidden;
+    color: #fff8dc;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.25rem, 2.1vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .recent-award-main p {
+    margin-top: 0.25rem;
+    color: #ffe9a6;
+    font-size: clamp(0.92rem, 1.2vw, 1.15rem);
+    font-weight: 900;
+  }
+
+  .recent-award-details {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 0.6rem;
+  }
+
+  .recent-award-details strong,
+  .recent-award-details span,
+  .plaque-empty {
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem;
+    color: #fff8dc;
+    font-size: clamp(0.95rem, 1.3vw, 1.25rem);
+    font-weight: 900;
+  }
+
+  .recent-award-details strong {
+    color: #ffe188;
+  }
+
+  .recent-award-meta {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.85rem;
+    color: rgba(255, 248, 220, 0.82);
+    font-size: clamp(0.75rem, 1vw, 0.95rem);
+    font-weight: 800;
+  }
+
+  .recent-award-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .quarter-leaders-panel {
+    border-radius: 1.35rem;
+    padding: clamp(0.75rem, 1.4vmin, 1.05rem);
+  }
+
+  .quarter-leaders-title {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #fff8dc;
+  }
+
+  .quarter-leaders-title h2 {
+    font-size: clamp(1rem, 1.5vw, 1.35rem);
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .quarter-leaders-title p {
+    margin-top: 0.2rem;
+    color: rgba(255, 248, 220, 0.7);
+    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+    font-weight: 800;
+  }
+
+  .student-plaque-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1vmin, 0.85rem);
+    margin-top: clamp(0.55rem, 1vmin, 0.8rem);
+  }
+
+  .student-plaque {
+    position: relative;
+    display: grid;
+    min-height: clamp(7rem, 13dvh, 10.5rem);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 232, 158, 0.62);
+    border-radius: 1.1rem;
+    padding: clamp(0.85rem, 1.2vmin, 1rem);
+    padding-top: clamp(1.4rem, 2vmin, 1.7rem);
+    background:
+      linear-gradient(120deg, rgba(255, 255, 255, 0.16), transparent 34%),
+      linear-gradient(160deg, rgba(var(--house-rgb), 0.9), rgba(15, 23, 42, 0.95));
+    box-shadow: inset 0 -1.6rem 2rem rgba(0, 0, 0, 0.18), 0 0.8rem 1.4rem rgba(0, 0, 0, 0.2);
+  }
+
+  .student-plaque__rod {
+    top: 0.35rem;
+    left: -6%;
+    right: -6%;
+    height: 0.55rem;
+  }
+
+  .student-plaque__avatar {
+    width: clamp(3rem, 4.8vmin, 4.35rem);
+    height: clamp(3rem, 4.8vmin, 4.35rem);
+    font-size: clamp(1rem, 1.6vw, 1.55rem);
+  }
+
+  .student-plaque__body {
+    min-width: 0;
+  }
+
+  .student-plaque__house {
+    color: #ffe9a6;
+    font-size: clamp(0.7rem, 0.95vw, 0.9rem);
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .student-plaque h3 {
+    margin-top: 0.15rem;
+    overflow: hidden;
+    color: #fff8dc;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 1.55vw, 1.55rem);
+    font-weight: 700;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-plaque__points {
+    margin-top: 0.25rem;
+    color: #fff2a8;
+    font-size: clamp(0.9rem, 1.3vw, 1.15rem);
+    font-weight: 950;
+  }
+
+  @media (max-width: 1100px) {
+    .school-leaderboard-page {
+      overflow-y: auto;
+    }
+
+    .school-leaderboard-stage {
+      min-height: auto;
+      grid-template-rows: auto auto auto;
+    }
+
+    .scoreboard-actions {
+      position: static;
+      justify-content: center;
+      margin-top: 0.7rem;
+    }
+
+    .school-leaderboard-header {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .house-banner-grid {
+      display: flex;
+      min-height: auto;
+      max-height: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding-top: 0.75rem;
+    }
+
+    .house-banner-slot {
+      flex: 1 1 19rem;
+    }
+
+    .house-banner,
+    .house-banner--first,
+    .house-banner--fourth {
+      width: min(100%, 25rem);
+    }
+
+    .scoreboard-lower {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .school-leaderboard-stage {
+      padding: 0.75rem;
+      padding-bottom: 6.5rem;
+    }
+
+    .leaderboard-ribbon {
+      min-width: min(94vw, 30rem);
+      padding-inline: 2rem;
+      font-size: clamp(1.25rem, 9vw, 2.2rem);
+    }
+
+    .scoreboard-actions {
+      flex-wrap: wrap;
+    }
+
+    .hall-window,
+    .hall-arch {
+      opacity: 0.45;
+    }
+
+    .house-banner-slot {
+      flex-basis: 100%;
+    }
+
+    .house-banner__chain {
+      display: none;
+    }
+
+    .student-plaque-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .recent-award-details {
+      grid-template-columns: 1fr;
+    }
   }
 }

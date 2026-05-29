@@ -118,6 +118,14 @@ export default function App() {
             </RoleRoute>
           }
         />
+        <Route
+          path="/live-scores/display"
+          element={
+            <RoleRoute profile={profile} allowed={["teacher", "admin"]}>
+              <LiveScoresPage profile={profile} displayMode />
+            </RoleRoute>
+          }
+        />
         <Route path="/leaderboard" element={<LeaderboardPage profile={profile} />} />
         <Route path="*" element={<Navigate to={defaultPathForRole(profile.role)} replace />} />
       </Routes>
