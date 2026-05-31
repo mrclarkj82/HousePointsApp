@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppShell from "./components/AppShell";
 import LoadingScreen from "./components/LoadingScreen";
 import { useAuthProfile } from "./hooks/useAuthProfile";
@@ -23,6 +23,18 @@ function RoleRoute({ profile, allowed, children }) {
     return <Navigate to={defaultPathForRole(profile.role)} replace />;
   }
   return children;
+}
+
+function LiveScoresRoute({ profile }) {
+  const location = useLocation();
+  const normalizedPath = location.pathname.replace(/\/+$/, "") || "/";
+  const displayMode = normalizedPath === "/live-scores/display";
+
+  return (
+    <RoleRoute profile={profile} allowed={["teacher", "admin"]}>
+      <LiveScoresPage profile={profile} displayMode={displayMode} />
+    </RoleRoute>
+  );
 }
 
 function PendingAccount({ user, profile }) {
@@ -111,20 +123,8 @@ export default function App() {
           }
         />
         <Route
-          path="/live-scores"
-          element={
-            <RoleRoute profile={profile} allowed={["teacher", "admin"]}>
-              <LiveScoresPage profile={profile} />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/live-scores/display"
-          element={
-            <RoleRoute profile={profile} allowed={["teacher", "admin"]}>
-              <LiveScoresPage profile={profile} displayMode />
-            </RoleRoute>
-          }
+          path="/live-scores/*"
+          element={<LiveScoresRoute profile={profile} />}
         />
         <Route path="/leaderboard" element={<LeaderboardPage profile={profile} />} />
         <Route path="*" element={<Navigate to={defaultPathForRole(profile.role)} replace />} />

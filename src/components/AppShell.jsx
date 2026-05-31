@@ -47,9 +47,10 @@ function NavButton({ item, mobile = false }) {
 export default function AppShell({ profile, children }) {
   const location = useLocation();
   const navItems = NAV_BY_ROLE[profile?.role] || [];
-  const isLiveScoresRoute = location.pathname.startsWith("/live-scores");
-  const isDisplayRoute = location.pathname === "/live-scores/display";
-  const activeNavItem = navItems.find((item) => item.to === location.pathname || (item.to === "/live-scores" && isLiveScoresRoute));
+  const normalizedPath = location.pathname.replace(/\/+$/, "") || "/";
+  const isLiveScoresRoute = normalizedPath.startsWith("/live-scores");
+  const isDisplayRoute = normalizedPath === "/live-scores/display";
+  const activeNavItem = navItems.find((item) => item.to === normalizedPath || (item.to === "/live-scores" && isLiveScoresRoute));
   const title = activeNavItem?.label || "House Points";
 
   return (
